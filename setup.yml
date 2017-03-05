@@ -1,0 +1,70 @@
+# Install basic requirements, keys
+
+---
+
+# Install and configure ufw
+- hosts: all
+  remote_user: root
+  tasks:
+  - name: Install ufw
+    apt: name=ufw state=latest
+  - name: Configure ufw to deny outgoing and incoming
+    shell: ufw default deny incoming && 
+            ufw default deny outgoing
+    notify:
+    - restart ufw
+  - name: Configure ufw to allow ssh
+    shell: ufw allow ssh
+    notify:
+    - restart ufw
+  - name: Configure ufw to allow HTTP, HTTPS, Nightscout HTTP
+    shell: ufw allow 80 && 
+            ufw allow 443 && 
+            ufw allow 8081
+    notify:
+    - restart ufw
+  - name: Configure ufw to allow mail
+    shell: ufw allow 25 && 
+            ufw allow 587 && 
+            ufw allow 143 && 
+            ufw allow 993
+    notify:
+    - restart ufw
+  handlers:
+  - name: restart ufw
+    service: name=ufw state=restarted
+
+# Install and configure mosh
+- hosts: all
+  remote_user: root
+  tasks:
+  - name: Install mosh
+    apt: name=mosh state=latest
+  - name: Confiugre ufw for mosh
+    shell: ufw allow 60000:60010/udp # Open firewall
+    notify:
+    - restart ufw
+  handlers:
+  - name: restart ufw
+    service: name=ufw state=restarted
+
+# Install and configure docker
+- hosts: all
+  remote_user: root
+  tasks:
+  - name: Install Docker GPG key into apt
+    shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - name: Add Docker repository
+    shell: add-apt-repository 
+       "deb [arch=amd64] https://download.docker.com/linux/ubuntu 
+       $(lsb_release -cs) 
+       stable"
+  - name: Update apt
+    shell: apt-get update
+  - name: Install Docker
+    apt: name=docker-ce state=latest
+
+# # Install github ssh keys
+# - hosts: all
+#   remote_user: root
+#   tasks:
