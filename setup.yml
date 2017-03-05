@@ -64,7 +64,12 @@
   - name: Install Docker
     apt: name=docker-ce state=latest
 
-# # Install github ssh keys
-# - hosts: all
-#   remote_user: root
-#   tasks:
+# Install github ssh keys
+- hosts: all
+  remote_user: root
+  tasks:
+  - name: Copy Github key
+    copy:
+      src: ~/.ssh/glucloser2_github
+      dest: /root/.ssh/glucloser2_github
+      owner: root
