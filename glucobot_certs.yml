@@ -1,0 +1,12 @@
+# Install SSL certs for glucobot
+
+---
+
+# Install letsencrypt and setup certs
+- hosts: all
+  remote_user: root
+  tasks:
+  - name: Install letsencrypt
+    apt: name=letsencrypt state=latest
+  - name: Generate certs for `elmo.glucloser.com`
+    shell: letsencrypt certonly --standalone -d elmo.glucloser.com -n -m "n.lefler@gmail.com" --agree-tos
